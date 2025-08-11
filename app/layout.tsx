@@ -9,6 +9,7 @@ import "./globals.css";
 import { ToasterProvider } from "@/providers/toast-provider";
 import prismadb from "@/lib/prismadb";
 import { ThemeProvider } from "@/providers/theme-providers";
+import NextTopLoader from "nextjs-toploader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,12 @@ export default function RootLayout({
             <ModalProvider />
             {children}
           </ThemeProvider>
+          <NextTopLoader
+           color="#3b82f6"
+           height={2}
+           showSpinner={false}
+           shadow="0 0 10px #3b82f6, 0 0 5px #3b82f6"
+          />
         </body>
       </html>
     </ClerkProvider>
