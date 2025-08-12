@@ -7,7 +7,7 @@ function handleCors(request: NextRequest) {
     const origin = request.headers.get("origin");
     const allowedOrigins = [
         process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
-        "http://13.61.34.13:3000", // Backend URL
+        "http://51.20.120.1 :3000", // Backend URL
         "http://52.55.177.115:3000", // Frontend URL
     ];
 
@@ -60,7 +60,7 @@ export default function middleware(request: NextRequest, event: NextFetchEvent) 
             const origin = request.headers.get("origin");
             const allowedOrigins = [
                 process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
-                "http://13.61.34.13:3000",
+                "http://51.20.120.1 :3000",
                 "http://52.55.177.115:3000",
             ];
             
