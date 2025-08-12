@@ -6,9 +6,9 @@ import type { NextRequest, NextFetchEvent } from "next/server";
 function handleCors(request: NextRequest) {
     const origin = request.headers.get("origin");
     const allowedOrigins = [
-        process.env.FRONTEND_STORE_URL || "http://192.168.32.225:3002",
-        "http://192.168.32.225:3001", // Backend URL
-        "http://192.168.32.225:3002", // Frontend URL
+        process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
+        "http://16.171.18.241:3000", // Backend URL
+        "http://52.55.177.115:3000", // Frontend URL
     ];
 
     // Check if origin is allowed
@@ -59,9 +59,9 @@ export default function middleware(request: NextRequest, event: NextFetchEvent) 
         if (response instanceof Response) {
             const origin = request.headers.get("origin");
             const allowedOrigins = [
-                process.env.FRONTEND_STORE_URL || "http://192.168.32.225:3002",
-                "http://192.168.32.225:3001",
-                "http://192.168.32.225:3002",
+                process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
+                "http://16.171.18.241:3000",
+                "http://52.55.177.115:3000",
             ];
             
             const isAllowedOrigin = origin && allowedOrigins.includes(origin);

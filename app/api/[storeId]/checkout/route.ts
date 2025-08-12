@@ -3,7 +3,7 @@ import paystack from "@/lib/paystack";
 import prismadb from "@/lib/prismadb";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.FRONTEND_STORE_URL || "http://192.168.32.225:3002",
+  "Access-Control-Allow-Origin": process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Content-Type": "application/json"
