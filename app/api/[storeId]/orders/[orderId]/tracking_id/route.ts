@@ -3,10 +3,11 @@ import prismadb from "@/lib/prismadb";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { storeId: string; orderId: string } }
+  { params }: { params: Promise<{ storeId: string; orderId: string }> }
 ) {
   try {
     const body = await req.json();
+    const { storeId, orderId } = await params;
     const { trackingId } = body;
 
     if (!trackingId) {
@@ -16,8 +17,8 @@ export async function PATCH(
     // Verify that the order exists and belongs to the store
     const existingOrder = await prismadb.order.findFirst({
       where: {
-        id: params.orderId,
-        storeId: params.storeId,
+        id: orderId,
+        storeId: storeId,
       },
     });
 
@@ -29,9 +30,9 @@ export async function PATCH(
     const existingTrackingId = await prismadb.order.findFirst({
       where: {
         trackingId: trackingId,
-        storeId: params.storeId,
+        storeId: storeId,
         NOT: {
-          id: params.orderId, // Exclude current order
+          id: orderId, // Exclude current order
         },
       },
     });
@@ -43,7 +44,7 @@ export async function PATCH(
     // Update the order with the new tracking ID
     const updatedOrder = await prismadb.order.update({
       where: {
-        id: params.orderId,
+        id: orderId,
       },
       data: {
         trackingId: trackingId,

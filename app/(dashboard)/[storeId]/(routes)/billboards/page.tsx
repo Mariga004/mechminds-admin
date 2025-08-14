@@ -7,11 +7,13 @@ import { BillboardColumn } from "./components/columns";
 const BillboardsPage = async ({
     params 
 }: {
-    params: {storeId: string}
+    params: Promise<{storeId: string}>
 }) => {
+    const { storeId } = await params;
+    
     const billboards = await prismadb.billboard.findMany({
          where: {
-            storeId: params.storeId
+            storeId: storeId
          },
          orderBy: {
             createdAt: 'desc'
@@ -23,12 +25,14 @@ const BillboardsPage = async ({
         label: item.label,
         createdAt: format(item.createdAt, "MMMM do, yyyy")
     }));
+    
     return (
-        <div className="flex=col">
+        <div className="flex-col">
             <div className="flex-1 space-y-4 p-8 pt-6">
                  <BillboardClient data={formattedBillboards} />
             </div>
         </div>
     );
 }
-export default BillboardsPage
+
+export default BillboardsPage;

@@ -18,37 +18,39 @@ export const CellAction: React.FC<CellActionProps> = ({
     data
 }) => {
     const router = useRouter();
-    const params =useParams();
+    const params = useParams();
 
-    const [loading,setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const onCopy =(id: string) => {
+    const onCopy = (id: string) => {
         navigator.clipboard.writeText(id);
         toast.success("Product Id copied to the clipboard.");
     }
 
     const onDelete = async () => {
-    try {
-      setLoading(true)
-      await axios.delete (`/api/${params.storeId}/products/${data.id}`);
-      router.refresh();
-      router.push("/")
-      toast.success("Product deleted.");
-    } catch (error) {
-      toast.error("Something went wrong.")
-    } finally {
-      setLoading (false)
-      setOpen(false)
+        try {
+            setLoading(true);
+            await axios.delete(`/api/${params.storeId}/products/${data.id}`);
+            router.refresh();
+            router.push("/");
+            toast.success("Product deleted.");
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            toast.error("Something went wrong.");
+        } finally {
+            setLoading(false);
+            setOpen(false);
+        }
     }
-  }
+
     return (
         <>
             <AlertModal 
-             isOpen={open}
-             onClose={() => setOpen(false)}
-             onConfirm={onDelete}
-             loading={loading}
+                isOpen={open}
+                onClose={() => setOpen(false)}
+                onConfirm={onDelete}
+                loading={loading}
             />
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -58,21 +60,21 @@ export const CellAction: React.FC<CellActionProps> = ({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
-                    Actions
-                </DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => onCopy(data.id) }>
-                    <Copy className="mr-2 h-4 w-4"/>
-                    Copy Id
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/${params.storeId}/products/${data.id}`)}>
-                    <Edit className="mr-2 h-4 w-4"/>
-                    Update
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setOpen(true)}>
-                    <Trash className="mr-2 h-4 w-4"/>
-                    Delete
-                </DropdownMenuItem>
+                    <DropdownMenuLabel>
+                        Actions
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => onCopy(data.id)}>
+                        <Copy className="mr-2 h-4 w-4"/>
+                        Copy Id
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push(`/${params.storeId}/products/${data.id}`)}>
+                        <Edit className="mr-2 h-4 w-4"/>
+                        Update
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setOpen(true)}>
+                        <Trash className="mr-2 h-4 w-4"/>
+                        Delete
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </>

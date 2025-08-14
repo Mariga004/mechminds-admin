@@ -6,22 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Package, MapPin, Clock, User, Phone, Mail, CreditCard } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "react-hot-toast";
-import { Decimal } from "@prisma/client/runtime/library";
+import Image from "next/image";
 
 interface Product {
   id: string;
   name: string;
-  price: Decimal; // Use Prisma's Decimal type
+  price: number; // Changed from Decimal to number to match Prisma output
   storeId: string;
   categoryId: string;
   isFeatured: boolean;
   isArchived: boolean;
-  sizeId: string;
-  colorId: string;
+  // Removed sizeId and colorId as they're not included in the Prisma query
   createdAt: Date;
   updatedAt: Date;
   images: { 
@@ -29,7 +27,7 @@ interface Product {
     url: string; 
     createdAt: Date;
     productId: string;
-    updatedat: Date;
+    updatedAt: Date; // Fixed typo: was "updatedat"
   }[];
 }
 
@@ -82,7 +80,7 @@ const AdminTracking = ({ order, storeId }: AdminTrackingProps) => {
 
   // Calculate total price from order items
   const totalPrice = order.orderItems.reduce((total, item) => {
-    return total + (item.quantity * Number(item.product.price.toString()));
+    return total + (item.quantity * item.product.price);
   }, 0);
 
   const handleUpdateTracking = async () => {
@@ -115,7 +113,7 @@ const AdminTracking = ({ order, storeId }: AdminTrackingProps) => {
       } else {
         toast.error("Failed to update tracking");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsUpdating(false);
@@ -145,7 +143,7 @@ const AdminTracking = ({ order, storeId }: AdminTrackingProps) => {
       } else {
         toast.error("Failed to assign tracking ID");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   };
@@ -217,21 +215,23 @@ const AdminTracking = ({ order, storeId }: AdminTrackingProps) => {
             {order.orderItems.map((item) => (
               <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
                 {item.product.images[0] && (
-                  <img
+                  <Image
                     src={item.product.images[0].url}
                     alt={item.product.name}
-                    className="w-16 h-16 object-cover rounded"
+                    width={64}
+                    height={64}
+                    className="object-cover rounded"
                   />
                 )}
                 <div className="flex-1">
                   <h4 className="font-medium">{item.product.name}</h4>
                   <p className="text-sm text-gray-500">
-                    Quantity: {item.quantity} × KSh {Number(item.product.price.toString()).toLocaleString()}
+                    Quantity: {item.quantity} × KSh {item.product.price.toLocaleString()}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">
-                    KSh {(item.quantity * Number(item.product.price.toString())).toLocaleString()}
+                    KSh {(item.quantity * item.product.price).toLocaleString()}
                   </p>
                 </div>
               </div>

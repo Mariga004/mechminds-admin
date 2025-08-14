@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import  prismadb from "@/lib/prismadb"; // Adjust the import path based on your setup
+import prismadb from "@/lib/prismadb"; // Adjust the import path based on your setup
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ) {
   try {
+    // Await the params since they're now a Promise in newer Next.js versions
+    const { storeId } = await params;
+    
     const { searchParams } = new URL(req.url);
     const email = searchParams.get("email");
 
     // Validate required parameters
-    if (!params.storeId) {
+    if (!storeId) {
       return new NextResponse("Store ID is required", { status: 400 });
     }
 
@@ -21,7 +24,7 @@ export async function GET(
     // Fetch orders for the customer with the specified email
     const orders = await prismadb.order.findMany({
       where: {
-        storeId: params.storeId,
+        storeId: storeId, // Use the awaited storeId
         customerEmail: email,
       },
       include: {

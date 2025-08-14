@@ -3,9 +3,12 @@ import prismadb from "@/lib/prismadb";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ) {
   try {
+    // Await the params since they're now a Promise in newer Next.js versions
+    const { storeId } = await params;
+    
     const { searchParams } = new URL(req.url);
     const trackingId = searchParams.get('trackingId');
 
@@ -17,7 +20,7 @@ export async function GET(
     const order = await prismadb.order.findFirst({
       where: {
         trackingId: trackingId,
-        storeId: params.storeId,
+        storeId: storeId, // Use the awaited storeId
       },
       include: {
         orderItems: {

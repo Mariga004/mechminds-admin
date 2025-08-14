@@ -44,7 +44,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const params = useParams();
   const router = useRouter();
 
-
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -65,14 +64,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     try {
       setLoading(true); 
       if (initialData) {
-      await axios.patch(`/api/${params.storeId}/categories/${params.categoryId}`, data);
-    } else {
-      await axios.post(`/api/${params.storeId}/categories`, data);
-    }
+        await axios.patch(`/api/${params.storeId}/categories/${params.categoryId}`, data);
+      } else {
+        await axios.post(`/api/${params.storeId}/categories`, data);
+      }
       router.refresh();
-      router.push(`/${params.storeId}/categories`)
+      router.push(`/${params.storeId}/categories`);
       toast.success(toastMessage);
     } catch (error) {
+      console.error("Error submitting category form:", error);
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
@@ -81,34 +81,33 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
   const onDelete = async () => {
     try {
-      setLoading(true)
-      await axios.delete (`/api/stores/${params.storeId}/categories/${params.categoryId}`);
+      setLoading(true);
+      await axios.delete(`/api/stores/${params.storeId}/categories/${params.categoryId}`);
       router.refresh();
-      router.push(`/${params.storeId}/categories`)
+      router.push(`/${params.storeId}/categories`);
       toast.success("Category deleted.");
     } catch (error) {
-      toast.error("Make sure you removed all products using this category first")
+      console.error("Error deleting category:", error);
+      toast.error("Make sure you removed all products using this category first");
     } finally {
-      setLoading (false)
-      setOpen(false)
+      setLoading(false);
+      setOpen(false);
     }
-  }
-
+  };
 
   return (
     <>
-
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialData && (
-        <Button
-          disabled={loading}
-          variant="destructive"
-          size="icon"
-          onClick={() => setOpen(true)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+          <Button
+            disabled={loading}
+            variant="destructive"
+            size="icon"
+            onClick={() => setOpen(true)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
         )}
       </div>
       <AlertModal
@@ -126,7 +125,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>name</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
@@ -145,29 +144,29 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                 <FormItem>
                   <FormLabel>Billboard</FormLabel>
                   <Select 
-                   disabled={loading} 
-                   onValueChange={field.onChange} 
-                   value={field.value} 
-                   defaultValue={field.value}
+                    disabled={loading} 
+                    onValueChange={field.onChange} 
+                    value={field.value} 
+                    defaultValue={field.value}
                   >
-                   <FormControl>
-                    <SelectTrigger>
-                     <SelectValue 
-                      defaultValue={field.value} 
-                      placeholder="Select a Billboard"
-                     />
-                    </SelectTrigger>
-                   </FormControl>
-                   <SelectContent>
-                    {billboards.map ((billboard) => (
-                      <SelectItem
-                       key={billboard.id}
-                       value={billboard.id}
-                      >
-                        {billboard.label}
-                      </SelectItem>
-                    ))}
-                   </SelectContent>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue 
+                          defaultValue={field.value} 
+                          placeholder="Select a Billboard"
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {billboards.map((billboard) => (
+                        <SelectItem
+                          key={billboard.id}
+                          value={billboard.id}
+                        >
+                          {billboard.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                   <FormMessage /> 
                 </FormItem>

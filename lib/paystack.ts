@@ -1,12 +1,29 @@
 // Use direct Paystack initialization instead of the paystack-api package
-const paystackClient = {
-  initializeTransaction: async (params: {
-    amount: number;
-    email: string;
-    currency: string;
+
+interface PaystackMetadata {
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+interface PaystackTransactionParams {
+  amount: number;
+  email: string;
+  currency: string;
+  reference: string;
+  metadata?: PaystackMetadata;
+}
+
+interface PaystackResponse {
+  status: boolean;
+  message: string;
+  data: {
+    authorization_url: string;
+    access_code: string;
     reference: string;
-    metadata?: any;
-  }) => {
+  };
+}
+
+const paystackClient = {
+  initializeTransaction: async (params: PaystackTransactionParams): Promise<PaystackResponse> => {
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
       headers: {

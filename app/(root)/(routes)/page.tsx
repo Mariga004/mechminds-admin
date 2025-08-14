@@ -1,9 +1,6 @@
 "use client"
 import { useEffect } from "react";
-import { Modal } from "@/components/ui/modal";
 import { useStoreModal } from "@/hooks/use-store-modal";
-import { UserButton } from "@clerk/nextjs";
-import { Mogra } from "next/font/google";
 
 const SetupPage = () => {
   const onOpen = useStoreModal((state) => state.onOpen);
@@ -18,4 +15,3 @@ const SetupPage = () => {
 }
 
 export default SetupPage;
-

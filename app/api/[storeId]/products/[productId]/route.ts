@@ -4,24 +4,27 @@ import prismadb from "@/lib/prismadb";
 
 export async function GET (
     req: Request,
-    { params }: { params: {productId: string} }
+    { params }: { params: Promise<{productId: string}> }
 ) {
     try {
-     if (!params.productId) {
-        return new NextResponse("Product id is required", { status: 400});
-     }
+        // Await the params since they're now a Promise in newer Next.js versions
+        const { productId } = await params;
 
-     const product = await prismadb.product.findUnique({
-        where: {
-            id: params.productId,
-        },
-        include: {
-            images: true,
-            category: true
+        if (!productId) {
+            return new NextResponse("Product id is required", { status: 400});
         }
-     });
 
-     return NextResponse.json(product)
+        const product = await prismadb.product.findUnique({
+            where: {
+                id: productId,
+            },
+            include: {
+                images: true,
+                category: true
+            }
+        });
+
+        return NextResponse.json(product)
 
     } catch (error) {
         console.log(' [PRODUCT_GET] ', error)
@@ -29,91 +32,93 @@ export async function GET (
     }
 };
 
-
 export async function PATCH (
     req: Request,
-    { params }: { params: { storeId: string, productId: string} }
+    { params }: { params: Promise<{ storeId: string, productId: string}> }
 ) {
     try {
-     const { userId} =  await auth();
-     const body = await req.json();
+        // Await the params since they're now a Promise in newer Next.js versions
+        const { storeId, productId } = await params;
+        
+        const { userId} =  await auth();
+        const body = await req.json();
 
-     const { 
-      name,
-      price, 
-      categoryId, 
-      images, 
-      isFeatured, 
-      isArchived 
-    } = body;
-
-    if (!userId) {
-        return new NextResponse("Uauthenticated", { status: 401});
-    }
-
-    if (!name) {
-      return new NextResponse("Name is required", { status: 400 });
-    }
-
-    if (!images || !images.length) {
-      return new NextResponse("Images are required", { status: 400 });
-    }
-
-    if (!price) {
-      return new NextResponse("Price is required", { status: 400 });
-    }
-
-    if (!categoryId) {
-      return new NextResponse("Category id is required", { status: 400 });
-    }
-
-     if (!params.productId) {
-        return new NextResponse("Product id is required", { status: 400});
-    }
-
-
-    const storeByUserId = await prismadb.store.findFirst({
-        where: {
-            id: params.storeId,
-            userId
-        }
-      });
-
-    if (!storeByUserId) {
-        return new NextResponse("Unauthorized", { status: 403});
-      }
-
-    await prismadb.product.update({
-        where: {
-            id: params.productId
-        },
-        data: {
+        const { 
             name,
-            price,
-            categoryId,
-            images: {
-                deleteMany: {}
-            },
-            isFeatured,
-            isArchived,
+            price, 
+            categoryId, 
+            images, 
+            isFeatured, 
+            isArchived 
+        } = body;
+
+        if (!userId) {
+            return new NextResponse("Unauthenticated", { status: 401});
         }
-    })
-    const product = await prismadb.product.update({
-        where: {
-            id: params.productId
-        },
-        data: {
-            images: {
-                createMany: {
-                    data: [
-                        ...images.map((image: { url: string }) => image)
-                    ],
+
+        if (!name) {
+            return new NextResponse("Name is required", { status: 400 });
+        }
+
+        if (!images || !images.length) {
+            return new NextResponse("Images are required", { status: 400 });
+        }
+
+        if (!price) {
+            return new NextResponse("Price is required", { status: 400 });
+        }
+
+        if (!categoryId) {
+            return new NextResponse("Category id is required", { status: 400 });
+        }
+
+        if (!productId) {
+            return new NextResponse("Product id is required", { status: 400});
+        }
+
+        const storeByUserId = await prismadb.store.findFirst({
+            where: {
+                id: storeId,
+                userId
+            }
+        });
+
+        if (!storeByUserId) {
+            return new NextResponse("Unauthorized", { status: 403});
+        }
+
+        await prismadb.product.update({
+            where: {
+                id: productId
+            },
+            data: {
+                name,
+                price,
+                categoryId,
+                images: {
+                    deleteMany: {}
+                },
+                isFeatured,
+                isArchived,
+            }
+        })
+        
+        const product = await prismadb.product.update({
+            where: {
+                id: productId
+            },
+            data: {
+                images: {
+                    createMany: {
+                        data: [
+                            ...images.map((image: { url: string }) => image)
+                        ],
+                    },
                 },
             },
-        },
-     });
+        });
 
-     return NextResponse.json(product)
+        return NextResponse.json(product)
 
     } catch (error) {
         console.log(' [PRODUCT_PATCH] ', error)
@@ -123,42 +128,43 @@ export async function PATCH (
 
 export async function DELETE (
     req: Request,
-    { params }: { params: { storeId: string,  productId: string} }
+    { params }: { params: Promise<{ storeId: string,  productId: string}> }
 ) {
     try {
-     const { userId} =  await auth();
+        // Await the params since they're now a Promise in newer Next.js versions
+        const { storeId, productId } = await params;
+        
+        const { userId} =  await auth();
 
-     if (!userId) {
-        return new NextResponse("Unauthenticated", { status: 401});
-     }
+        if (!userId) {
+            return new NextResponse("Unauthenticated", { status: 401});
+        }
 
-     if (!params.productId) {
-        return new NextResponse("Product id is required", { status: 400});
-     }
+        if (!productId) {
+            return new NextResponse("Product id is required", { status: 400});
+        }
 
         const storeByUserId = await prismadb.store.findFirst({
-        where: {
-            id: params.storeId,
-            userId
+            where: {
+                id: storeId,
+                userId
+            }
+        });
+
+        if (!storeByUserId) {
+            return new NextResponse("Unauthorized", { status: 403});
         }
-      });
 
-    if (!storeByUserId) {
-        return new NextResponse("Unauthorized", { status: 403});
-      }
+        const product = await prismadb.product.deleteMany({
+            where: {
+                id: productId,
+            }
+        })
 
-     const product = await prismadb.product.deleteMany({
-        where: {
-            id: params.productId,
-        
-        }
-     })
-
-     return NextResponse.json(product)
+        return NextResponse.json(product)
 
     } catch (error) {
         console.log(' [PRODUCT_DELETE] ', error)
         return new NextResponse("Internal error", {status: 500});
     }
 };
-

@@ -3,10 +3,11 @@ import prismadb from "@/lib/prismadb";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { storeId: string; orderId: string } }
+  { params }: { params: Promise<{ storeId: string; orderId: string }> }
 ) {
   try {
     const body = await req.json();
+    const { storeId, orderId } = await params;
     const { status, location, note } = body;
 
     if (!status) {
@@ -16,8 +17,8 @@ export async function POST(
     // Verify that the order exists and belongs to the store
     const order = await prismadb.order.findFirst({
       where: {
-        id: params.orderId,
-        storeId: params.storeId,
+        id: orderId,
+        storeId: storeId,
       },
     });
 
@@ -28,7 +29,7 @@ export async function POST(
     // Create the tracking update
     const trackingUpdate = await prismadb.trackingUpdate.create({
       data: {
-        orderId: params.orderId,
+        orderId: orderId,
         status,
         location: location || null,
         note: note || null,

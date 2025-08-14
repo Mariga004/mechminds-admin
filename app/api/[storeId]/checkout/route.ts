@@ -2,6 +2,22 @@ import { NextResponse } from "next/server";
 import paystack from "@/lib/paystack";
 import prismadb from "@/lib/prismadb";
 
+// Type definitions
+interface CartItem {
+  id: string;
+  quantity: number;
+}
+
+interface CheckoutRequest {
+  items: CartItem[];
+  customerEmail: string;
+  customerName?: string;
+  phone?: string;
+  address?: string;
+  county?: string;
+  idNumber?: string;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -15,10 +31,11 @@ export async function OPTIONS() {
 
 export async function POST(
   req: Request,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ) {
   try {
-    const { items, customerEmail, customerName, phone, address, county, idNumber } = await req.json();
+    const { items, customerEmail, customerName, phone, address, county, idNumber }: CheckoutRequest = await req.json();
+    const { storeId } = await params;
 
     if (!items?.length) {
       return new NextResponse(
@@ -27,10 +44,10 @@ export async function POST(
       );
     }
 
-    const productIds = items.map((item: any) => item.id);
+    const productIds = items.map((item: CartItem) => item.id);
 
     // Validate inputs
-    if (!params.storeId) {
+    if (!storeId) {
       return new NextResponse(
         JSON.stringify({ error: "Store ID is required" }),
         { status: 400, headers: corsHeaders }
@@ -65,7 +82,7 @@ export async function POST(
 
     // Calculate amount
     const amount = products.reduce((total, product) => {
-      const item = items.find((i: any) => i.id === product.id);
+      const item = items.find((i: CartItem) => i.id === product.id);
       const quantity = item?.quantity || 1;
       return total + product.price * quantity * 100;
     }, 0);
@@ -73,7 +90,7 @@ export async function POST(
     // Create order
     const order = await prismadb.order.create({
       data: {
-        storeId: params.storeId,
+        storeId: storeId,
         customerEmail,
         phone: phone || "",
         address: address || "",
@@ -82,7 +99,7 @@ export async function POST(
         idNumber: idNumber || "",
         isPaid: false,
         orderItems: {
-          create: items.map((item: any) => ({
+          create: items.map((item: CartItem) => ({
             product: { connect: { id: item.id } },
             quantity: item.quantity || 1,
           })),
@@ -93,8 +110,8 @@ export async function POST(
     // 🔍 DEBUG: Log what was actually saved
     console.log("=== ORDER CREATED ===");
     console.log("Order ID:", order.id);
-    console.log("Saved customerName:", "${order.customerName}");
-    console.log("Saved idNumber:", "${order.idNumber}");
+    console.log("Saved customerName:", order.customerName);
+    console.log("Saved idNumber:", order.idNumber);
     console.log("==================");
 
     // Initialize Paystack payment
@@ -105,7 +122,7 @@ export async function POST(
       reference: `order_${order.id}_${Date.now()}`,
       metadata: {
         orderId: order.id,
-        storeId: params.storeId
+        storeId: storeId
       }
     });
 

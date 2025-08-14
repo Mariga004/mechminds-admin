@@ -4,20 +4,23 @@ import prismadb from "@/lib/prismadb";
 
 export async function GET(
   req: Request,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ) {
   try {
+    // Await the params since they're now a Promise in newer Next.js versions
+    const { storeId } = await params;
+    
     const { searchParams } = new URL(req.url);
     const categoryId = searchParams.get("categoryId") || undefined;
     const isFeatured = searchParams.get("isFeatured")
 
-    if (!params.storeId) {
+    if (!storeId) {
       return new NextResponse("Store id is required", { status: 400 });
     }
 
     const products = await prismadb.product.findMany({
       where: {
-        storeId: params.storeId,
+        storeId: storeId,
         categoryId,
         isFeatured: isFeatured ? true : undefined,
         isArchived: false
@@ -40,9 +43,12 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { storeId: string } }
+  { params }: { params: Promise<{ storeId: string }> }
 ) {
   try {
+    // Await the params since they're now a Promise in newer Next.js versions
+    const { storeId } = await params;
+    
     const { userId } = await auth();
     const body = await req.json();
 
@@ -75,13 +81,13 @@ export async function POST(
       return new NextResponse("Category id is required", { status: 400 });
     }
 
-    if (!params.storeId) {
+    if (!storeId) {
       return new NextResponse("Store id is required", { status: 400 });
     }
 
     const storeByUserId = await prismadb.store.findFirst({
       where: {
-        id: params.storeId,
+        id: storeId,
         userId,
       },
     });
@@ -97,7 +103,7 @@ export async function POST(
         categoryId, 
         isFeatured, 
         isArchived,
-        storeId: params.storeId,
+        storeId: storeId,
         images: {
           createMany: {
             data: [

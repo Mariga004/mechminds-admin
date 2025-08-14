@@ -7,7 +7,6 @@ import { ModalProvider } from "@/providers/modal.providers";
 
 import "./globals.css";
 import { ToasterProvider } from "@/providers/toast-provider";
-import prismadb from "@/lib/prismadb";
 import { ThemeProvider } from "@/providers/theme-providers";
 import NextTopLoader from "nextjs-toploader";
 
