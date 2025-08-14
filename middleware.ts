@@ -6,23 +6,24 @@ import type { NextRequest, NextFetchEvent } from "next/server";
 function handleCors(request: NextRequest) {
     const origin = request.headers.get("origin");
     const allowedOrigins = [
-        process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
-        "http://192.168.62.133 :3000", // Backend URL
-        "http://52.55.177.115:3000", // Frontend URL
+        "http://52.55.177.115", // Frontend via Nginx (port 80)
+        "http://52.55.177.115:3000", // Frontend direct (port 3000)
+        "https://your-admin-backend.vercel.app", // Admin backend on Vercel
+        "https://52.55.177.115", // HTTPS frontend
     ];
-
+    
     // Check if origin is allowed
     const isAllowedOrigin = origin && allowedOrigins.includes(origin);
     
     const corsHeaders = {
-        "Access-Control-Allow-Origin": isAllowedOrigin ? origin : allowedOrigins[0],
+        "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "http://52.55.177.115",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, X-Requested-With, Origin",
-        "Access-Control-Allow-Credentials": "false", // Set to true only if needed
-        "Access-Control-Max-Age": "86400", // 24 hours
+        "Access-Control-Allow-Credentials": "false",
+        "Access-Control-Max-Age": "86400",
         "Vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
     };
-
+    
     return new NextResponse(null, {
         status: 200,
         headers: corsHeaders,
@@ -35,7 +36,7 @@ const clerkMiddleware = authMiddleware({
         "/api/:path*", // All API routes are public
         "/", // Homepage
         "/sign-in(.*)", // Sign in pages
-        "/sign-up(.*)", // Sign up pages - ADDED
+        "/sign-up(.*)", // Sign up pages
         "/post-sign-in"
     ],
     ignoredRoutes: [
@@ -50,7 +51,7 @@ export default function middleware(request: NextRequest, event: NextFetchEvent) 
     if (request.method === "OPTIONS") {
         return handleCors(request);
     }
-
+    
     // Add CORS headers to all API responses
     if (request.nextUrl.pathname.startsWith("/api/")) {
         const response = clerkMiddleware(request, event);
@@ -59,14 +60,15 @@ export default function middleware(request: NextRequest, event: NextFetchEvent) 
         if (response instanceof Response) {
             const origin = request.headers.get("origin");
             const allowedOrigins = [
-                process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
-                "http://192.168.62.133 :3000",
-                "http://52.55.177.115:3000",
+                "http://52.55.177.115", // Frontend via Nginx
+                "http://52.55.177.115:3000", // Frontend direct
+                "https://your-admin-backend.vercel.app", // Admin backend on Vercel
+                "https://52.55.177.115", // HTTPS frontend
             ];
             
             const isAllowedOrigin = origin && allowedOrigins.includes(origin);
             
-            response.headers.set("Access-Control-Allow-Origin", isAllowedOrigin ? origin : allowedOrigins[0]);
+            response.headers.set("Access-Control-Allow-Origin", isAllowedOrigin ? origin : "http://52.55.177.115");
             response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
             response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, X-Requested-With, Origin");
             response.headers.set("Vary", "Origin, Access-Control-Request-Method, Access-Control-Request-Headers");
@@ -74,7 +76,7 @@ export default function middleware(request: NextRequest, event: NextFetchEvent) 
         
         return response;
     }
-
+    
     // For non-API routes, just use Clerk middleware
     return clerkMiddleware(request, event);
 }
