@@ -19,7 +19,7 @@ interface CheckoutRequest {
 }
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.FRONTEND_STORE_URL || "http://52.55.177.115:3000",
+  "Access-Control-Allow-Origin": process.env.FRONTEND_STORE_URL || "https://elimuroboticss.vercel.app",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Content-Type": "application/json"
