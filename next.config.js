@@ -89,21 +89,22 @@ const nextConfig = {
         ];
     },
 
-    // Optional: Add redirects for better SEO
+    // Optional: Add redirects for better SEO (DISABLED to fix redirect loop)
     async redirects() {
         return [
-            // Redirect www to non-www (or vice versa)
-            {
-                source: '/:path*',
-                has: [
-                    {
-                        type: 'host',
-                        value: 'www.elimurobotics.shop',
-                    },
-                ],
-                destination: 'https://elimurobotics.shop/:path*',
-                permanent: true,
-            },
+            // Disable redirects temporarily to fix redirect loop
+            // Uncomment and test one by one if needed
+            // {
+            //     source: '/:path*',
+            //     has: [
+            //         {
+            //             type: 'host',
+            //             value: 'www.elimurobotics.shop',
+            //         },
+            //     ],
+            //     destination: 'https://elimurobotics.shop/:path*',
+            //     permanent: true,
+            // },
         ];
     },
 
