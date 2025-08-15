@@ -6,7 +6,9 @@ import type { NextRequest, NextFetchEvent } from "next/server";
 function handleCors(request: NextRequest) {
     const origin = request.headers.get("origin");
     const allowedOrigins = [
-        "https://elimuroboticss.vercel.app", // Store frontend on Vercel
+        "https://elimurobotics.shop", // Custom domain store frontend
+        "https://www.elimurobotics.shop", // www version
+        "https://elimuroboticss.vercel.app", // Fallback Vercel store frontend
         "https://elimurobotics.vercel.app", // Admin backend on Vercel
     ];
     
@@ -14,7 +16,7 @@ function handleCors(request: NextRequest) {
     const isAllowedOrigin = origin && allowedOrigins.includes(origin);
     
     const corsHeaders = {
-        "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "https://elimuroboticss.vercel.app",
+        "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "https://elimurobotics.shop",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, X-Requested-With, Origin",
         "Access-Control-Allow-Credentials": "false",
@@ -58,13 +60,15 @@ export default function middleware(request: NextRequest, event: NextFetchEvent) 
         if (response instanceof Response) {
             const origin = request.headers.get("origin");
             const allowedOrigins = [
-                "https://elimuroboticss.vercel.app", // Store frontend on Vercel
+                "https://elimurobotics.shop", // Custom domain store frontend
+                "https://www.elimurobotics.shop", // www version
+                "https://elimuroboticss.vercel.app", // Fallback Vercel store frontend
                 "https://elimurobotics.vercel.app", // Admin backend on Vercel
             ];
             
             const isAllowedOrigin = origin && allowedOrigins.includes(origin);
             
-            response.headers.set("Access-Control-Allow-Origin", isAllowedOrigin ? origin : "https://elimuroboticss.vercel.app");
+            response.headers.set("Access-Control-Allow-Origin", isAllowedOrigin ? origin : "https://elimurobotics.shop");
             response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
             response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, X-Requested-With, Origin");
             response.headers.set("Vary", "Origin, Access-Control-Request-Method, Access-Control-Request-Headers");

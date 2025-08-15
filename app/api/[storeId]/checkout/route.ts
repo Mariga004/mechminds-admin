@@ -19,7 +19,7 @@ interface CheckoutRequest {
 }
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": process.env.FRONTEND_STORE_URL || "https://elimuroboticss.vercel.app",
+  "Access-Control-Allow-Origin": process.env.FRONTEND_STORE_URL || "https://elimurobotics.shop",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Content-Type": "application/json"
@@ -29,7 +29,7 @@ export async function OPTIONS() {
   return new NextResponse(null, { headers: corsHeaders });
 }
 
-export async function POST(
+export async function POST( 
   req: Request,
   { params }: { params: Promise<{ storeId: string }> }
 ) {
